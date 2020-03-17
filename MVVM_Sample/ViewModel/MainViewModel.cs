@@ -21,9 +21,11 @@ using MVVM_Sample.Common;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
 using MVVM_Sample.Model;
+using PropertyChanged;
 
 namespace MVVM_Sample.ViewModel
 {
+    [AddINotifyPropertyChangedInterface]
     public partial class MainViewModel : INotifyPropertyChanged
     {
         #region ViewModel : インスタンス
@@ -45,52 +47,29 @@ namespace MVVM_Sample.ViewModel
         public MainViewModel()
         {
             // 初期化処理など
-            SampleModels.Add(new SampleModel("初期表示用テーマ", "社会", DateTime.Now));
+            ThemeModelList.Add(new ThemeModel("初期表示用テーマ", "社会", DateTime.Now));
+            ThemeModelList.Add(new ThemeModel("初期表示用テーマ2", "政治", DateTime.Now));
+            ThemeModelList.Add(new ThemeModel("初期表示用テーマ3", "社会", DateTime.Now));
+            ThemeModelList.Add(new ThemeModel("初期表示用テーマ4", "政治", DateTime.Now));
+            ThemeModelList.Add(new ThemeModel("初期表示用テーマ5", "社会", DateTime.Now));
         }
         #endregion
 
-        #region ViewModel : Properties
+        #region ViewModel : Binding Properties
         /// <summary>
-        /// TextBlock表示文字列
+        /// 選択テーマ情報
         /// </summary>
-        private string _textBlockString = "初期表示テキスト";
-        public string TextBlockString
-        {
-            get { return _textBlockString; }
-            set
-            {
-                _textBlockString = value;
-                NotifyPropertyChanged(nameof(TextBlockString));
-            }
-        }
+        public SelectedInfoModel SelectedInfoModel { get; set; } = new SelectedInfoModel();
 
         /// <summary>
-        /// TextBlock表示色
+        /// Theme一覧情報
         /// </summary>
-        private SolidColorBrush _textBlockForeground = new SolidColorBrush(Colors.White);
-        public SolidColorBrush TextBlockForeground
-        {
-            get { return _textBlockForeground; }
-            set
-            {
-                _textBlockForeground = value;
-                NotifyPropertyChanged(nameof(TextBlockForeground));
-            }
-        }
+        public ObservableCollection<ThemeModel> ThemeModelList { get; set; } = new ObservableCollection<ThemeModel>();
 
         /// <summary>
-        /// SampleModelのコレクション
+        /// ステータス情報
         /// </summary>
-        private ObservableCollection<SampleModel> _sampleModels = new ObservableCollection<SampleModel>();
-        public ObservableCollection<SampleModel> SampleModels
-        {
-            get { return _sampleModels; }
-            set
-            {
-                _sampleModels = value;
-                NotifyPropertyChanged(nameof(SampleModels));
-            }
-        }
+        public StatusModel StatusModel { get; set; } = new StatusModel();
         #endregion
 
         #region ViewModel : PropertyChanged Event
@@ -139,20 +118,23 @@ namespace MVVM_Sample.ViewModel
                     cmd = parameter.ToString();
                 }
 
-               　Debug.WriteLine($"■ DoCommand：{cmd.ToString()}　" +
-                    $"Param1：{(param1 == null ? "null" : param1)}　" +
-                    $"Param2：{(param2 == null ? "null" : param2)}");
+                Debug.WriteLine($"■ DoCommand：{cmd.ToString()}　" +
+                     $"Param1：{(param1 == null ? "null" : param1)}　" +
+                     $"Param2：{(param2 == null ? "null" : param2)}");
 
                 switch (cmd)
                 {
-                    case "SetDate":
-                        SetDate(param1 as SampleModel);
-                        break;
                     case "AddTheme":
-                        AddTheme(param1 as SampleModel);
+                        AddTheme();
                         break;
                     case "DeleteTheme":
-                        DeleteTheme(param1 as SampleModel);
+                        DeleteTheme(param1 as ThemeModel);
+                        break;
+                    case "UpdateThemeDate":
+                        UpdateThemeDate(param1 as ThemeModel);
+                        break;
+                    case "Publish":
+                        Publish();
                         break;
                     default:
                         break;
@@ -164,6 +146,7 @@ namespace MVVM_Sample.ViewModel
             }
         }
 
+        #region Command Interface
         public bool DoCommandCanExecute(object parameter)
         {
             return true;
@@ -182,21 +165,143 @@ namespace MVVM_Sample.ViewModel
         }
         #endregion
 
-        #region ViewModel : Method SingleCommand
-        private void SetDate(SampleModel model)
+        #endregion コマンド処理
+
+        #region ViewModel : Command Method
+        #region Method : AddTheme
+        /// <summary>
+        /// テーマ追加
+        /// </summary>
+        private void AddTheme()
         {
-            var target = SampleModels.Where(x => x.ThemeId == model.ThemeId).SingleOrDefault();
+            ThemeModelList.Add(new ThemeModel("追加テーマ_" + DateTime.Now.ToString(@"mmss_fff"), ThemeModelList.Count % 2 == 0 ? "社会" : "政治", DateTime.Now));
+        }
+        #endregion
+
+        #region Method : DeleteTheme
+        /// <summary>
+        /// テーマ削除
+        /// </summary>
+        /// <param name="model"></param>
+        private void DeleteTheme(ThemeModel model)
+        {
+            var target = ThemeModelList.Where(x => x.ThemeId == model.ThemeId).SingleOrDefault();
+            ThemeModelList.Remove(target);
+        }
+        #endregion
+
+        #region Method : UpdateThemeDate
+        /// <summary>
+        /// テーマ登録日時更新
+        /// </summary>
+        /// <param name="model"></param>
+        private void UpdateThemeDate(ThemeModel model)
+        {
+            var target = ThemeModelList.Where(x => x.ThemeId == model.ThemeId).SingleOrDefault();
             target.InputDate = DateTime.Now;
         }
-        private void DeleteTheme(SampleModel model)
+        #endregion
+
+        #region Method : Publish
+        /// <summary>
+        /// 出稿処理呼び出し
+        /// </summary>
+        private async void Publish()
         {
-            var target = SampleModels.Where(x => x.ThemeId == model.ThemeId).SingleOrDefault();
-            SampleModels.Remove(target);
+            var tasks = new List<Task<bool>>(); // TaskをまとめるListを作成
+            StatusModel.StatusMessage = "出稿開始";
+
+            foreach (var item in ThemeModelList)
+            {
+                //var cancelTokensource1 = new CancellationTokenSource();
+                //var cToken = cancelTokensource1.Token;
+
+                var task = Task.Run(() => PublishAsync(item));
+                tasks.Add(task); // を、Listにまとめる
+
+                //cancelTokensource1.Dispose();
+                //cancelTokensource1 = null;
+            }
+            
+            // Task配列の処理を実行し、全ての処理が終了するまで待機
+            var arrayInt = await Task.WhenAll(tasks);
+
+            if (arrayInt.All(ret=>ret)) StatusModel.StatusMessage = "出稿終了：全件成功";
+            else StatusModel.StatusMessage = "出稿終了：失敗したタスクがあります";
         }
-        private void AddTheme(SampleModel model)
+
+        private static long MaxWaitTime=60000;
+        /// <summary>
+        /// 出稿処理
+        /// </summary>
+        /// <param name="tm"></param>
+        private bool PublishAsync(ThemeModel tm)//, CancellationToken cancelToken)
         {
-            SampleModels.Add(new SampleModel("追加テーマ_"+DateTime.Now.ToString(@"mmss_fff"), SampleModels.Count%2==0?"社会":"政治",DateTime.Now));
+            bool ret =  false;
+
+            // ステータスクリア
+            tm.ClearPubStatus();
+
+            // json作成
+            // ..............
+
+            // exe呼び出し
+            Process CmdExec = new Process();
+
+            // Timeout Timer
+            Stopwatch sw = Stopwatch.StartNew();
+
+            // Sample Wait (実際はこの時間がexe待ち時間)
+            long sampleWait = 5000;
+            if (tm.ThemeName == "初期表示用テーマ2") sampleWait = 7000;
+            if (tm.ThemeName == "初期表示用テーマ3") sampleWait = 9000;
+            if (tm.ThemeName == "初期表示用テーマ4") sampleWait = 4000;
+            if (tm.ThemeName == "初期表示用テーマ5") sampleWait = 7800;
+
+            Console.WriteLine($"■ {tm.ThemeName} の出稿開始（処理時間：{sampleWait/1000}秒）");
+
+            while (sw.ElapsedMilliseconds < MaxWaitTime)
+            {
+                //ダミー負荷用ウエイト ms スレッドを止める
+                Thread.Sleep(30);
+
+                //進捗報告
+                tm.StatusValue = (double)(sw.ElapsedMilliseconds * 100.0 / MaxWaitTime);
+
+                // Sample Wait到達でbreak
+                if (sampleWait < sw.ElapsedMilliseconds)
+                {
+                    // 処理結果OK
+                    if(sw.ElapsedMilliseconds < 8000)
+                    {
+                        ret = true;
+                        Console.WriteLine($"■ {tm.ThemeName} の出稿成功（処理時間：{sw.ElapsedMilliseconds / 1000}秒）");
+                        break;
+                    }
+                    // 処理結果NG
+                    ret = false;
+                    Console.WriteLine($"■ {tm.ThemeName} の出稿エラー（処理時間：{sw.ElapsedMilliseconds / 1000}秒）");
+                    break;
+                }
+
+                //キャンセルリクエストの確認
+                //if (cancelToken.IsCancellationRequested)
+                //{
+                //    ret = false;
+                //    break;
+                //}
+
+            }
+            tm.SetPubStatus(ret);
+            Console.WriteLine($"■ {tm.ThemeName} の出稿終了（処理時間：{sw.ElapsedMilliseconds / 1000}秒）");
+            //}
+            return ret;
         }
+        public long CreateLong()
+        {
+            return new Random().Next(3, 20) * 1000;
+        }
+        #endregion
         #endregion
     }
 
