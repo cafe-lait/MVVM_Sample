@@ -1,7 +1,6 @@
 ﻿using PropertyChanged;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -11,12 +10,12 @@ using System.Threading.Tasks;
 namespace MVVM_Sample.Model
 {
     [AddINotifyPropertyChangedInterface]
-    public class ThemeModel
+    public class ContentModel
     {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        ThemeModel() { }
+        public ContentModel() { }
 
         /// <summary>
         /// 引数付きコンストラクタ
@@ -25,54 +24,33 @@ namespace MVVM_Sample.Model
         /// <param name="_name"></param>
         /// <param name="_kind"></param>
         /// <param name="_input"></param>
-        public ThemeModel(string _name, string _kind, int _article, int _img)
+        public ContentModel(string _name, string _kind, string _size)
         {
-            ThemeId = "THEME_" + DateTime.Now.ToString(@"hhmmssfff");
-            ThemeName = _name;
-            ThemeKind = _kind;
-            ArticleCount = _article;
-            ImageCount = _img;
+            ContentlId = (_kind=="画像"? "IP":"KT") + DateTime.Now.ToString(@"yyMMddHHmmssfff");
+            ContentlName = _name;
+            ContentlKind = _kind;
+            ContentlSize = _size;
         }
 
         /// <summary>
-        /// テーマID
+        /// 素材ID
         /// </summary>
-        public string ThemeId { get; set; } = "未設定";
+        public string ContentlId { get; set; } = "未設定";
 
         /// <summary>
-        /// テーマ名
+        /// 素材名
         /// </summary>
-        public string ThemeName { get; set; } = "未設定";
+        public string ContentlName { get; set; } = "未設定";
 
         /// <summary>
-        /// テーマ概要
+        /// 素材種別
         /// </summary>
-        public string ThemeSummary { get; set; } = "未設定";
+        public string ContentlKind { get; set; } = "未設定";
 
         /// <summary>
-        /// 編集テーマ名
+        /// 素材サイズ
         /// </summary>
-        public string EditThemeName { get; set; } = "未設定";
-
-        /// <summary>
-        /// テーマ種別
-        /// </summary>
-        public string ThemeKind { get; set; } = "未設定";
-
-        /// <summary>
-        /// 記事数
-        /// </summary>
-        public int ArticleCount { get; set; } = 0;
-
-        /// <summary>
-        /// 画像数
-        /// </summary>
-        public int ImageCount { get; set; } = 0;
-
-        /// <summary>
-        /// 配下素材一覧
-        /// </summary>
-        public ObservableCollection<ContentModel> ContentList { get; set; } = new ObservableCollection<ContentModel>();
+        public string ContentlSize { get; set; } = "未設定";
 
         /// <summary>
         /// 登録日時
