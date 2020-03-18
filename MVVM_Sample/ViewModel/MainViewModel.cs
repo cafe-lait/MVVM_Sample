@@ -22,6 +22,7 @@ using System.Diagnostics;
 using System.Collections.ObjectModel;
 using MVVM_Sample.Model;
 using PropertyChanged;
+using MVVM_Sample.Behavior;
 
 namespace MVVM_Sample.ViewModel
 {
@@ -46,7 +47,7 @@ namespace MVVM_Sample.ViewModel
         #region ViewModel : コンストラクタ
         public MainViewModel()
         {
-            // 初期化処理など
+            // テストデータ
             ThemeList.Add(new ThemeModel("ガソリン急落 半年ぶり143円台", "経済", _rdm.Next(1,3), _rdm.Next(0, 3)));
             ThemeList[ThemeList.Count - 1].ContentList.Add(new ContentModel("レギュラーガソリン急落、前週比2.9円安の143.5円　半年ぶりの安値", "記事", $"{_rdm.Next(15,45)}行"));
             ThemeList[ThemeList.Count - 1].ContentList.Add(new ContentModel("［ハイオクガソリン実売価格（「e燃費」調べ）］", "画像", "1920x1080"));
@@ -76,6 +77,11 @@ namespace MVVM_Sample.ViewModel
             ContentFreeList.Add(new ContentModel("18日東京株式市場終値　284円98銭安の1万6726円55銭", "画像", $"{_rdm.Next(600, 1980)}x{_rdm.Next(400, 1080)}"));
             ContentFreeList.Add(new ContentModel("ＵＳＪが子ども達に『サプライズプレゼント』学童保育に通う３千人超に１３００万円分", "記事", $"{_rdm.Next(15, 45)}行"));
             ContentFreeList.Add(new ContentModel("GPIF22兆円の大損失 株価暴落＆運用失敗", "記事", $"{_rdm.Next(15, 45)}行"));
+
+            // Drag&Drop
+            this.Description = new DropAcceptDescription();
+            this.Description.DragOver += Description_DragOver;
+            this.Description.DragDrop += Description_DragDrop;
         }
         #endregion
 
@@ -309,6 +315,45 @@ namespace MVVM_Sample.ViewModel
             return ret;
         }
         #endregion
+        #endregion
+
+        #region Drag & Drop
+        //private DropAcceptDescription _description;
+        //public DropAcceptDescription Description
+        //{
+        //    get { return this._description; }
+        //    set
+        //    {
+        //        if (this._description == value)
+        //        {
+        //            return;
+        //        }
+        //        this._description = value;
+        //        //this.RaisePropertyChanged(() => this.Description);
+        //    }
+        //}
+        public DropAcceptDescription Description { get; set; } = new DropAcceptDescription();
+        private void Description_DragDrop(System.Windows.DragEventArgs args)
+        {
+            if (!args.Data.GetDataPresent(typeof(MainViewModel))) return;
+            var data = args.Data.GetData(typeof(MainViewModel)) as MainViewModel;
+            if (data == null) return;
+            var fe = args.OriginalSource as FrameworkElement;
+            if (fe == null) return;
+            var target = fe.DataContext as MainViewModel;
+            if (target == null) return;
+        }
+        private void Description_DragOver(System.Windows.DragEventArgs args)
+        {
+            if (args.AllowedEffects.HasFlag(DragDropEffects.Copy))
+            {
+                if (args.Data.GetDataPresent(typeof(MainViewModel)))
+                {
+                    return;
+                }
+            }
+            args.Effects = DragDropEffects.None;
+        }
         #endregion
     }
 
