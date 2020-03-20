@@ -3,79 +3,39 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:behaviors="clr-namespace:MVVM_Sample.Behavior"
+        xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MVVM_Sample.ViewModel"
-        mc:Ignorable="d" FontSize="16"
+        xmlns:common="clr-namespace:MVVM_Sample.Common"
+        mc:Ignorable="d" FontSize="16" 
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource BackBrush_GUI}"
         Title="MainWindow" Height="900" Width="1400">
-    
+
     <Window.Resources>
         <!--Converter-->
-        <local:MultiParamConverter x:Key="MultiParamConv" />
-        <local:BoolVisibilityConverter x:Key="BoolVisibilityConverter" />
+        <common:MultiParamConverter x:Key="MultiParamConv" />
+        <common:BoolVisibilityConverter x:Key="BoolVisibilityConverter" />
 
-        <!--  ListBox系 Item Style Theme -->
-        <Style x:Key="ListBoxItemTheme" TargetType="{x:Type ListBoxItem}">
-            <Setter Property="IsSelected" Value="{Binding IsSelected}" />
+        <!--  ListBoxItem Theme Item Style -->
+        <Style TargetType="{x:Type ListBoxItem}" x:Key="ThemeItemStyle">
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBoxItem">
                         <Grid x:Name="itemContentGrid">
-                            <i:Interaction.Behaviors>
-                                <!--<behaviors:DragStartBehavior AllowedEffects="Copy" DragDropData="{Binding}" />-->
-                            </i:Interaction.Behaviors>
                             <Border Name="Border" Padding="1" SnapsToDevicePixels="true" Background="Transparent">
                                 <ContentPresenter />
                             </Border>
-                            <!--<Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                                    x:Name="itemContentBackground">
-                            <Rectangle.RenderTransform>
-                                <ScaleTransform ScaleX="0" />
-                            </Rectangle.RenderTransform>
-                            <Rectangle.Fill>
-                                <LinearGradientBrush StartPoint="1,.5" EndPoint=".1,.8" >
-                                    <GradientStop Color="#00FF6666" Offset="0.0"/>
-                                    <GradientStop Color="#46FF6666" Offset="0.35"/>
-                                    <GradientStop Color="#00FF6666" Offset="1.0"/>
-                                </LinearGradientBrush>
-                            </Rectangle.Fill>
-                        </Rectangle>-->
                         </Grid>
                         <ControlTemplate.Triggers>
-                            <!--<EventTrigger RoutedEvent="Selector.Selected">
-                            <BeginStoryboard>
-                                <Storyboard Storyboard.TargetName="itemContentBackground">
-                                    <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleX)" To="1.0" Duration="0:0:1" />
-                                    <PointAnimation Storyboard.TargetProperty="RenderTransformOrigin" To="0,0.5" Duration="0:0:0" />
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger>
-                        <EventTrigger RoutedEvent="Selector.Unselected">
-                            <BeginStoryboard>
-                                <Storyboard Storyboard.TargetName="itemContentBackground">
-                                    <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleX)" To="0" Duration="0:0:0.2" />
-                                    <PointAnimation Storyboard.TargetProperty="RenderTransformOrigin" To="0,0.5" Duration="0:0:0" />
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger>-->
-                            <!-- Select Trigger Style -->
+                            <!--選択状態によって強調表示する設定-->
                             <Trigger Property="IsSelected" Value="true">
-                                <Setter TargetName="Border" Property="Background"
-                                        Value="transparent"/>
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="false">
-                                <Setter TargetName="Border" Property="Background" 
-                                        Value="transparent"/>
-                            </Trigger>
-                            <!--マウスオーバーで選択状態をtrueにする設定-->
-                            <Trigger Property="IsMouseOver" Value="true">
                                 <Setter TargetName="Border" Property="BorderBrush" 
                                         Value="{DynamicResource SelectBrush}"/>
                                 <Setter TargetName="Border" Property="BorderThickness" Value="1"/>
                             </Trigger>
-                            <Trigger Property="IsMouseOver" Value="false">
+                            <Trigger Property="IsSelected" Value="false">
                                 <Setter TargetName="Border" Property="BorderBrush" 
                                         Value="{DynamicResource UnselectBrush}"/>
                                 <Setter TargetName="Border" Property="BorderThickness" Value="1"/>
@@ -86,9 +46,8 @@
             </Setter>
         </Style>
 
-        <!--  ListBox系 Item Style Theme -->
-        <Style x:Key="ListBoxItemContent" TargetType="{x:Type ListBoxItem}">
-            <Setter Property="IsSelected" Value="{Binding IsSelected}" />
+        <!--  ListBoxItem Content Item Style -->
+        <Style TargetType="{x:Type ListBoxItem}" x:Key="ContentItemStyle" >
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBoxItem">
@@ -99,47 +58,9 @@
                             <Border Name="Border" Padding="1" SnapsToDevicePixels="true" Background="Transparent">
                                 <ContentPresenter />
                             </Border>
-                            <!--<Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                                    x:Name="itemContentBackground">
-                            <Rectangle.RenderTransform>
-                                <ScaleTransform ScaleX="0" />
-                            </Rectangle.RenderTransform>
-                            <Rectangle.Fill>
-                                <LinearGradientBrush StartPoint="1,.5" EndPoint=".1,.8" >
-                                    <GradientStop Color="#00FF6666" Offset="0.0"/>
-                                    <GradientStop Color="#46FF6666" Offset="0.35"/>
-                                    <GradientStop Color="#00FF6666" Offset="1.0"/>
-                                </LinearGradientBrush>
-                            </Rectangle.Fill>
-                        </Rectangle>-->
                         </Grid>
                         <ControlTemplate.Triggers>
-                            <!--<EventTrigger RoutedEvent="Selector.Selected">
-                            <BeginStoryboard>
-                                <Storyboard Storyboard.TargetName="itemContentBackground">
-                                    <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleX)" To="1.0" Duration="0:0:1" />
-                                    <PointAnimation Storyboard.TargetProperty="RenderTransformOrigin" To="0,0.5" Duration="0:0:0" />
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger>
-                        <EventTrigger RoutedEvent="Selector.Unselected">
-                            <BeginStoryboard>
-                                <Storyboard Storyboard.TargetName="itemContentBackground">
-                                    <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleX)" To="0" Duration="0:0:0.2" />
-                                    <PointAnimation Storyboard.TargetProperty="RenderTransformOrigin" To="0,0.5" Duration="0:0:0" />
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger>-->
-                            <!-- Select Trigger Style -->
-                            <Trigger Property="IsSelected" Value="true">
-                                <Setter TargetName="Border" Property="Background"
-                                        Value="transparent"/>
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="false">
-                                <Setter TargetName="Border" Property="Background" 
-                                        Value="transparent"/>
-                            </Trigger>
-                            <!--マウスオーバーで選択状態をtrueにする設定-->
+                            <!--マウスオーバーによって強調表示する設定-->
                             <Trigger Property="IsMouseOver" Value="true">
                                 <Setter TargetName="Border" Property="BorderBrush" 
                                         Value="{DynamicResource SelectBrush}"/>
@@ -156,9 +77,8 @@
             </Setter>
         </Style>
 
-
-        <!--ListBox-->
-        <Style TargetType="{x:Type ListBox}" x:Key="ContentStyle" >
+        <!--ListBox ContentList Style-->
+        <Style TargetType="{x:Type ListBox}" x:Key="ContentListStyle" >
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Padding" Value="5" />
@@ -168,10 +88,6 @@
                 <Setter.Value>
                     <DataTemplate>
                         <StackPanel Orientation="Vertical" Margin="0">
-                            <i:Interaction.Behaviors>
-                                <behaviors:DragStartBehavior AllowedEffects="Copy" DragDropData="{Binding}" />
-                                <!--<behaviors:DragAcceptBehavior Description="{Binding Description}" />-->
-                            </i:Interaction.Behaviors>
                             <Border BorderThickness="0" BorderBrush="{StaticResource SelectBrush_Light}" Name="MovieBorder" Margin="0,1"
                                     Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}, AncestorLevel=1},Path=ActualWidth}">
                                 <Grid Height="30">
@@ -181,29 +97,14 @@
                                         <ColumnDefinition Width="205"/>
                                         <ColumnDefinition Width="150"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Margin="1" Text="{Binding PublishStatus}" TextAlignment="Left" Foreground="{StaticResource FrontBrush}" >
-                                        <TextBlock.InputBindings>
-                                            <MouseBinding MouseAction="LeftDoubleClick" 
-                                                          Command="{Binding DataContext.DoCommand,
-                                                    RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ListBox}}}">
-                                                <MouseBinding.CommandParameter>
-                                                    <MultiBinding Converter="{StaticResource MultiParamConv}">
-                                                        <Binding Source="UpdateThemeDate"/>
-                                                        <Binding Path="DataContext" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=ListBoxItem}"/>
-                                                    </MultiBinding>
-                                                </MouseBinding.CommandParameter>
-                                            </MouseBinding>
-                                        </TextBlock.InputBindings>
-                                    </TextBlock>
+                                    <TextBlock Grid.Column="0" Margin="1" Text="{Binding PublishStatus}" TextAlignment="Left" Foreground="{StaticResource FrontBrush}" />
                                     <TextBlock Grid.Column="1" Margin="1,1,25,1" TextAlignment="Left" Foreground="{StaticResource FrontBrush}" Text="{Binding ContentlName}"
                                                TextTrimming="WordEllipsis" ToolTip="{Binding Path=Text, RelativeSource={RelativeSource Self}}"/>
                                     <TextBlock Grid.Column="2" Margin="1" TextAlignment="Left" Foreground="{StaticResource FrontBrush}" >
-                                        <Run Text="ID："/>
-                                        <Run Text="{Binding ContentlId}"/>
+                                        <Run Text="ID："/><Run Text="{Binding ContentlId}"/>
                                     </TextBlock>
                                     <TextBlock Grid.Column="3" Margin="1" TextAlignment="Left" Foreground="{StaticResource FrontBrush}">
-                                        <Run Text="サイズ："/>
-                                        <Run Text="{Binding ContentlSize}"/>
+                                        <Run Text="サイズ："/><Run Text="{Binding ContentlSize}"/>
                                     </TextBlock>
                                     <StatusBar Grid.Column="1" Grid.ColumnSpan="3" Background="Transparent" Panel.ZIndex="-1" >
                                         <StatusBarItem VerticalContentAlignment="Bottom">
@@ -220,8 +121,8 @@
             </Setter>
         </Style>
 
-        <!--ListBox-->
-        <Style TargetType="{x:Type ListBox}" x:Key="ContentFreeStyle" >
+        <!--ListBox ContentFreeList Style-->
+        <Style TargetType="{x:Type ListBox}" x:Key="ContentFreeListStyle" >
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Padding" Value="5" />
@@ -231,13 +132,9 @@
                 <Setter.Value>
                     <DataTemplate>
                         <StackPanel Orientation="Vertical" Margin="0">
-                            <Border BorderThickness="0" BorderBrush="{StaticResource SelectBrush_Light}" Name="MovieBorder" Margin="0,1"
+                            <Border BorderThickness="0" BorderBrush="{StaticResource SelectBrush_Light}" Name="MovieBorder" Margin="0,1" 
                                     Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=ActualWidth}">
-                                <Grid Height="30">
-                                    <i:Interaction.Behaviors>
-                                        <behaviors:DragStartBehavior AllowedEffects="Copy" DragDropData="{Binding}" />
-                                        <!--<behaviors:DragAcceptBehavior Description="{Binding Description}" />-->
-                                    </i:Interaction.Behaviors>
+                                <Grid Height="30" >
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="0"/>
                                         <ColumnDefinition Width="*" MinWidth="200"/>
@@ -256,8 +153,8 @@
             </Setter>
         </Style>
 
-        <!--ListBox-->
-        <Style TargetType="{x:Type ListBox}" x:Key="SampleModelsStyle" >
+        <!--ListBox ThemeListStyle Style-->
+        <Style TargetType="{x:Type ListBox}" x:Key="ThemeListStyle" >
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Padding" Value="5" />
@@ -266,8 +163,22 @@
             <Setter Property="ItemTemplate">
                 <Setter.Value>
                     <DataTemplate>
-                        <StackPanel Orientation="Vertical" Margin="0">
-                            <Border BorderThickness="0" BorderBrush="{StaticResource SelectBrush_Light}" Name="MovieBorder" Margin="0,4" Padding="0,2,0,0" Background="{StaticResource BackBrush_Light}"
+                        <StackPanel Orientation="Vertical" Margin="0"  >
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="DragEnter">
+                                    <i:InvokeCommandAction Command="{Binding DataContext.DoCommand,
+                                                    RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ListBox}}}">
+                                        <i:InvokeCommandAction.CommandParameter>
+                                            <MultiBinding Converter="{StaticResource MultiParamConv}">
+                                                <Binding Source="UpdateDrop"/>
+                                                <Binding Path="DataContext" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=ListBoxItem}"/>
+                                            </MultiBinding>
+                                        </i:InvokeCommandAction.CommandParameter>
+                                    </i:InvokeCommandAction>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <Border BorderThickness="0" BorderBrush="{StaticResource SelectBrush_Light}" Name="MovieBorder" Margin="0,4" 
+                                    Padding="0,2,0,0" Background="{StaticResource BackBrush_Light}"
                                     Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=ActualWidth}">
                                 <Grid >
                                     <Grid.RowDefinitions>
@@ -281,57 +192,20 @@
                                         <ColumnDefinition Width="100"/>
                                         <ColumnDefinition Width="100"/>
                                     </Grid.ColumnDefinitions>
-                                    <!--<TextBlock Grid.Column="0" Margin="1" Text="{Binding PublishStatus}" TextAlignment="Left" Foreground="{StaticResource FrontBrush}" >
-                                        <TextBlock.InputBindings>
-                                            <MouseBinding MouseAction="LeftDoubleClick" 
-                                                          Command="{Binding DataContext.DoCommand,
-                                                    RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type ListBox}}}">
-                                                <MouseBinding.CommandParameter>
-                                                    <MultiBinding Converter="{StaticResource MultiParamConv}">
-                                                        <Binding Source="UpdateThemeDate"/>
-                                                        <Binding Path="DataContext" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=ListBoxItem}"/>
-                                                    </MultiBinding>
-                                                </MouseBinding.CommandParameter>
-                                            </MouseBinding>
-                                        </TextBlock.InputBindings>
-                                    </TextBlock>-->
                                     <TextBox Grid.Column="1" Margin="1" Text="{Binding ThemeName}" TextAlignment="Left" Foreground="{StaticResource SelectBrush_Light}" 
                                              Style="{StaticResource TextBlockBox}" Background="Transparent" IsReadOnly="False"/>
                                     <TextBox Grid.Column="2" Margin="1"  Text="{Binding ThemeKind}" TextAlignment="Left" Foreground="{StaticResource SelectBrush_Light}" 
                                              Style="{StaticResource TextBlockBox}" Background="Transparent"/>
                                     <TextBlock Grid.Column="3" Margin="1" Text="{Binding ArticleCount}"  TextAlignment="Left" Foreground="{StaticResource SelectBrush_Light}" />
                                     <TextBlock Grid.Column="4" Margin="1" Text="{Binding ImageCount}"  TextAlignment="Left" Foreground="{StaticResource SelectBrush_Light}" />
-                                    <ListBox Grid.Row="1" Grid.ColumnSpan="5" MinHeight="50" Name="ListContent"
-                                         SelectionMode="{Binding Record_SelectMode}"
-                                         SelectedIndex="{Binding Record_SelectIndex}"
-                                         HorizontalContentAlignment="Right" IsEnabled="True"                         
-                                         IsSynchronizedWithCurrentItem="True"  
-                                              
-                                         VirtualizingPanel.ScrollUnit="Pixel"
-                                         VirtualizingPanel.IsVirtualizing="True"
-                                         VirtualizingPanel.IsContainerVirtualizable="True"
-                                         VirtualizingPanel.VirtualizationMode="Recycling"
-                                              
-                                         ScrollViewer.VerticalScrollBarVisibility="Visible"                    
-                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                         ScrollViewer.CanContentScroll="True"
-                                         ScrollViewer.PanningMode="Both"
-                                         ScrollViewer.IsDeferredScrollingEnabled="False"
-                                         ItemsSource="{Binding ContentList, Mode=Default, UpdateSourceTrigger=PropertyChanged}" 
-                                         Style="{StaticResource ContentStyle}"
-                                         ItemContainerStyle="{DynamicResource ListBoxItemContent}"
-                                         BorderBrush="{x:Null}">
-                                        <i:Interaction.Behaviors>
-                                            <behaviors:DragAcceptBehavior Description="{Binding Description}" />
-                                        </i:Interaction.Behaviors>
+                                    <ListBox Grid.Row="1" Grid.ColumnSpan="5"  IsSynchronizedWithCurrentItem="True" 
+                                             VirtualizingPanel.ScrollUnit="Pixel" VirtualizingPanel.IsVirtualizing="True"
+                                             VirtualizingPanel.IsContainerVirtualizable="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                                             ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                                             ScrollViewer.CanContentScroll="True" ScrollViewer.PanningMode="Both" ScrollViewer.IsDeferredScrollingEnabled="False"
+                                             ItemsSource="{Binding ContentList, Mode=Default, UpdateSourceTrigger=PropertyChanged}" 
+                                             Style="{StaticResource ContentListStyle}" ItemContainerStyle="{DynamicResource ContentItemStyle}">
                                     </ListBox>
-                                    <!--<StatusBar Grid.Column="1" Grid.ColumnSpan="3" Background="Transparent" Panel.ZIndex="-1" >
-                                        <StatusBarItem VerticalContentAlignment="Bottom">
-                                            <ProgressBar Foreground="{StaticResource SelectBrush_Light}" Background="Transparent" Opacity="0.7"
-                                                         Height="2" Width="{Binding Path=ActualWidth, RelativeSource={RelativeSource AncestorType=StatusBarItem}}"
-                                                         BorderThickness="0" Minimum="0.0" Maximum="100.0" Value="{Binding StatusValue}" Margin="0,2,0,0"/>
-                                        </StatusBarItem>
-                                    </StatusBar>-->
                                 </Grid>
                             </Border>
                         </StackPanel>
@@ -339,13 +213,13 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
+
     </Window.Resources>
 
     <Window.DataContext>
         <local:MainViewModel />
     </Window.DataContext>
-    
+
     <Grid>
         <Grid >
             <Grid.RowDefinitions>
@@ -358,7 +232,7 @@
                 <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
-            
+
             <Border Grid.Row="0" Grid.ColumnSpan="2" Margin="5,10,5,0" BorderThickness="0" BorderBrush="SkyBlue">
                 <UniformGrid Rows="1" >
                     <TextBlock Text="追加" Foreground="{StaticResource FrontBrush}" Background="{StaticResource BackBrush_Light}" 
@@ -388,7 +262,7 @@
                     </TextBlock>
                 </UniformGrid>
             </Border>
-            
+
             <Border Grid.Row="1" BorderThickness="0" Margin="3">
                 <UniformGrid Columns="1" Margin="5">
                     <TextBlock Foreground="{Binding SelectedInfoModel.TextBlockForeground}">
@@ -405,7 +279,7 @@
                     </TextBlock>
                 </UniformGrid>
             </Border>
-            
+
             <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="1" Margin="5" BorderThickness="0" BorderBrush="LightPink" >
                 <Grid>
                     <Grid.RowDefinitions>
@@ -425,29 +299,15 @@
                         <TextBlock Grid.Column="3" Text="画像数" Foreground="{StaticResource SelectBrush}"></TextBlock>
                     </Grid>
                     <Border Grid.Row="1">
-                        <ListBox 
-                            Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Border}}, Path=ActualHeight}"
-                            SelectionMode="{Binding Record_SelectMode}"
-                            SelectedIndex="{Binding Record_SelectIndex}"
-                            HorizontalContentAlignment="Right"
-                            Name="ListBox_ThemeList" IsEnabled="True"                         
-                            IsSynchronizedWithCurrentItem="True"  
-                                 
-                            VirtualizingPanel.ScrollUnit="Pixel"
-                            VirtualizingPanel.IsVirtualizing="True"
-                            VirtualizingPanel.IsContainerVirtualizable="True"
-                            VirtualizingPanel.VirtualizationMode="Recycling"
-                                 
-                            ScrollViewer.VerticalScrollBarVisibility="Visible"                    
-                            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                            ScrollViewer.CanContentScroll="True"
-                            ScrollViewer.PanningMode="Both"
-                            ScrollViewer.IsDeferredScrollingEnabled="False"
-                            ItemsSource="{Binding ThemeList, Mode=Default, UpdateSourceTrigger=PropertyChanged}" 
-                            Style="{StaticResource SampleModelsStyle}"
-                            ItemContainerStyle="{DynamicResource ListBoxItemTheme}" BorderThickness="0">
+                        <ListBox Name="ListBox_ThemeList" IsSynchronizedWithCurrentItem="True" 
+                                 VirtualizingPanel.ScrollUnit="Pixel" VirtualizingPanel.IsVirtualizing="True"
+                                 VirtualizingPanel.IsContainerVirtualizable="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="True" ScrollViewer.PanningMode="Both" 
+                                 ScrollViewer.IsDeferredScrollingEnabled="False"
+                                 ItemsSource="{Binding ThemeList, Mode=Default, UpdateSourceTrigger=PropertyChanged}" 
+                                 Style="{StaticResource ThemeListStyle}" ItemContainerStyle="{DynamicResource ThemeItemStyle}" AllowDrop="True">
                             <i:Interaction.Behaviors>
-                                <!--<behaviors:DragAcceptBehavior Description="{Binding Description}" />-->
+                                <behaviors:DragAcceptBehavior Description="{Binding Description}" />
                             </i:Interaction.Behaviors>
                         </ListBox>
                     </Border>
@@ -455,28 +315,15 @@
             </Border>
 
             <Border Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="1" Margin="5" BorderThickness="0" BorderBrush="LightPink" >
-                <ListBox Grid.Row="1" Grid.ColumnSpan="5" MinHeight="50"  Name="ListContentFree"
-                                         SelectionMode="{Binding Record_SelectMode}"
-                                         SelectedIndex="{Binding Record_SelectIndex}"
-                                         HorizontalContentAlignment="Right" IsEnabled="True"                         
-                                         IsSynchronizedWithCurrentItem="True"  
-                                              
-                                         VirtualizingPanel.ScrollUnit="Pixel"
-                                         VirtualizingPanel.IsVirtualizing="True"
-                                         VirtualizingPanel.IsContainerVirtualizable="True"
-                                         VirtualizingPanel.VirtualizationMode="Recycling"
-                                              
-                                         ScrollViewer.VerticalScrollBarVisibility="Visible"                    
-                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                         ScrollViewer.CanContentScroll="True"
-                                         ScrollViewer.PanningMode="Both"
-                                         ScrollViewer.IsDeferredScrollingEnabled="False"
-                                         ItemsSource="{Binding ContentFreeList, Mode=Default, UpdateSourceTrigger=PropertyChanged}" 
-                                         Style="{StaticResource ContentFreeStyle}"
-                                         ItemContainerStyle="{DynamicResource ListBoxItemContent}"
-                                         BorderBrush="{x:Null}">
+                <ListBox Grid.Row="1" Grid.ColumnSpan="5" IsSynchronizedWithCurrentItem="True" 
+                         VirtualizingPanel.ScrollUnit="Pixel" VirtualizingPanel.IsVirtualizing="True"
+                         VirtualizingPanel.IsContainerVirtualizable="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="True" ScrollViewer.PanningMode="Both" 
+                         ScrollViewer.IsDeferredScrollingEnabled="False"
+                         ItemsSource="{Binding ContentFreeList, Mode=Default, UpdateSourceTrigger=PropertyChanged}" 
+                         Style="{StaticResource ContentFreeListStyle}" ItemContainerStyle="{DynamicResource ContentItemStyle}" AllowDrop="True">
                     <i:Interaction.Behaviors>
-                        <!--<behaviors:DragAcceptBehavior Description="{Binding Description}" />-->
+                        <behaviors:DragAcceptBehavior Description="{Binding Description}" />
                     </i:Interaction.Behaviors>
                 </ListBox>
             </Border>
@@ -486,9 +333,6 @@
                     <StackPanel Width="{Binding Path=ActualWidth, RelativeSource={RelativeSource AncestorType=StatusBarItem}}">
                         <TextBlock Text="{Binding StatusModel.StatusMessage}" Style="{DynamicResource DefaultTextBlock}" 
                                Foreground="{StaticResource SelectBrush_Light}"/>
-                        <ProgressBar Height="2"  Foreground="{StaticResource SelectBrush_Light}" Background="Transparent" 
-                                     IsIndeterminate="{Binding StatusModel.IsIndeterminate}"
-                                     BorderThickness="0" Minimum="0.0" Maximum="100.0" Value="{Binding StatusModel.StatusValue}" Margin="0,2,0,0"/>
                     </StackPanel>
                 </StatusBarItem>
             </StatusBar>

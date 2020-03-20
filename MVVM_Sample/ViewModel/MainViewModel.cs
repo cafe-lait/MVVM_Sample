@@ -1,28 +1,18 @@
-﻿using System;
+﻿using MVVM_Sample.Behavior;
+using MVVM_Sample.Common;
+using MVVM_Sample.Model;
+using PropertyChanged;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
-using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Threading;
-using System.Xml;
-using System.Xml.Xsl;
-using System.Runtime.CompilerServices;
-using System.IO.Compression;
-using MVVM_Sample.Common;
-using System.Diagnostics;
-using System.Collections.ObjectModel;
-using MVVM_Sample.Model;
-using PropertyChanged;
-using MVVM_Sample.Behavior;
 
 namespace MVVM_Sample.ViewModel
 {
@@ -30,7 +20,9 @@ namespace MVVM_Sample.ViewModel
     public partial class MainViewModel
     {
         #region ViewModel : インスタンス
+
         private static MainViewModel _mvm;
+
         public static MainViewModel MVM
         {
             get
@@ -38,18 +30,19 @@ namespace MVVM_Sample.ViewModel
                 if (_mvm == null)
                     _mvm = new MainViewModel();
                 return _mvm;
-
             }
             set { _mvm = value; }
         }
-        #endregion
+
+        #endregion ViewModel : インスタンス
 
         #region ViewModel : コンストラクタ
+
         public MainViewModel()
         {
             // テストデータ
-            ThemeList.Add(new ThemeModel("ガソリン急落 半年ぶり143円台", "経済", _rdm.Next(1,3), _rdm.Next(0, 3)));
-            ThemeList[ThemeList.Count - 1].ContentList.Add(new ContentModel("レギュラーガソリン急落、前週比2.9円安の143.5円　半年ぶりの安値", "記事", $"{_rdm.Next(15,45)}行"));
+            ThemeList.Add(new ThemeModel("ガソリン急落 半年ぶり143円台", "経済", _rdm.Next(1, 3), _rdm.Next(0, 3)));
+            ThemeList[ThemeList.Count - 1].ContentList.Add(new ContentModel("レギュラーガソリン急落、前週比2.9円安の143.5円　半年ぶりの安値", "記事", $"{_rdm.Next(15, 45)}行"));
             ThemeList[ThemeList.Count - 1].ContentList.Add(new ContentModel("［ハイオクガソリン実売価格（「e燃費」調べ）］", "画像", "1920x1080"));
             ThemeList.Add(new ThemeModel("新型コロナの影響拡大を受けて", "政治", _rdm.Next(1, 3), _rdm.Next(0, 3)));
             ThemeList[ThemeList.Count - 1].ContentList.Add(new ContentModel("公共料金の支払いを猶予　欧州から入国、待機要請　新型コロナ", "記事", $"{_rdm.Next(15, 45)}行"));
@@ -83,9 +76,11 @@ namespace MVVM_Sample.ViewModel
             this.Description.DragOver += Description_DragOver;
             this.Description.DragDrop += Description_DragDrop;
         }
-        #endregion
+
+        #endregion ViewModel : コンストラクタ
 
         #region ViewModel : Binding Properties
+
         /// <summary>
         /// 選択テーマ情報
         /// </summary>
@@ -105,51 +100,74 @@ namespace MVVM_Sample.ViewModel
         /// ステータス情報
         /// </summary>
         public StatusModel StatusModel { get; set; } = new StatusModel();
-        #endregion
+
+        #endregion ViewModel : Binding Properties
+
+        public object this[string propertyName]
+        {
+            get
+            {
+                return this.GetType().GetProperty(propertyName).GetValue(this);
+            }
+
+            set
+            {
+                this.GetType().GetProperty(propertyName).SetValue(this, value);
+            }
+        }
 
         #region ViewModel : Command DoCommand コマンド振り分け
-        /// <summary>  
+
+        /// <summary>
         /// Button (Add) : Command
-        /// </summary> 
+        /// </summary>
         private void DoCommandExecute(object parameter = null)
         {
-            var cmd = string.Empty;
-            object param1 = null;
-            object param2 = null;
+            var Command = string.Empty;
+            object CommandParameter1 = null;
+            object CommandParameter2 = null;
             try
             {
                 // マルチパラメタ
                 if (parameter.GetType().IsArray)
                 {
                     var values = (object[])parameter;
-                    cmd = values[0].ToString();
-                    param1 = values[1];
-                    if (3 <= values.Count()) param2 = values[2];
+                    Command = values[0].ToString();
+                    CommandParameter1 = values[1];
+                    if (3 <= values.Count()) CommandParameter2 = values[2];
                 }
                 // シングルパラメタ
                 else
                 {
-                    cmd = parameter.ToString();
+                    Command = parameter.ToString();
                 }
 
-                Debug.WriteLine($"■ DoCommand：{cmd.ToString()}　" +
-                     $"Param1：{(param1 == null ? "null" : param1)}　" +
-                     $"Param2：{(param2 == null ? "null" : param2)}");
+                Debug.WriteLine($"■ DoCommand：{Command.ToString()}　" +
+                     $"Param1：{(CommandParameter1 == null ? "null" : CommandParameter1)}　" +
+                     $"Param2：{(CommandParameter2 == null ? "null" : CommandParameter2)}");
 
-                switch (cmd)
+                switch (Command)
                 {
                     case "AddTheme":
                         AddTheme();
                         break;
+
                     case "DeleteTheme":
-                        DeleteTheme(param1 as ThemeModel);
+                        DeleteTheme(CommandParameter1 as ThemeModel);
                         break;
+
                     case "UpdateThemeDate":
-                        UpdateThemeDate(param1 as ThemeModel);
+                        UpdateThemeDate(CommandParameter1 as ThemeModel);
                         break;
+
                     case "Publish":
                         Publish();
                         break;
+
+                    case "UpdateDrop":
+                        UpdateDrop(CommandParameter1);
+                        break;
+
                     default:
                         break;
                 }
@@ -161,11 +179,14 @@ namespace MVVM_Sample.ViewModel
         }
 
         #region Command Interface
+
         public bool DoCommandCanExecute(object parameter)
         {
             return true;
         }
+
         private static ICommand _DoCommand;
+
         public ICommand DoCommand
         {
             get
@@ -177,12 +198,15 @@ namespace MVVM_Sample.ViewModel
                 }; return _DoCommand;
             }
         }
-        #endregion
 
-        #endregion コマンド処理
+        #endregion Command Interface
+
+        #endregion ViewModel : Command DoCommand コマンド振り分け
 
         #region ViewModel : Command Method
+
         #region Method : AddTheme
+
         /// <summary>
         /// テーマ追加
         /// </summary>
@@ -190,9 +214,11 @@ namespace MVVM_Sample.ViewModel
         {
             ThemeList.Add(new ThemeModel("追加テーマ_" + DateTime.Now.ToString(@"mmss_fff"), ThemeList.Count % 2 == 0 ? "社会" : "政治", 1, 2));
         }
-        #endregion
+
+        #endregion Method : AddTheme
 
         #region Method : DeleteTheme
+
         /// <summary>
         /// テーマ削除
         /// </summary>
@@ -202,9 +228,11 @@ namespace MVVM_Sample.ViewModel
             var target = ThemeList.Where(x => x.ThemeId == model.ThemeId).SingleOrDefault();
             ThemeList.Remove(target);
         }
-        #endregion
+
+        #endregion Method : DeleteTheme
 
         #region Method : UpdateThemeDate
+
         /// <summary>
         /// テーマ登録日時更新
         /// </summary>
@@ -214,7 +242,8 @@ namespace MVVM_Sample.ViewModel
             var target = ThemeList.Where(x => x.ThemeId == model.ThemeId).SingleOrDefault();
             target.InputDate = DateTime.Now;
         }
-        #endregion
+
+        #endregion Method : UpdateThemeDate
 
         #region Method : Publish
         /// <summary>
@@ -307,86 +336,130 @@ namespace MVVM_Sample.ViewModel
                 //    ret = false;
                 //    break;
                 //}
-
             }
             cm.SetPubStatus(ret);
             Console.WriteLine($"■ {cm.ContentlId} の出稿終了（処理時間：{sw.ElapsedMilliseconds / 1000}秒）");
             //}
             return ret;
         }
-        #endregion
-        #endregion
+
+        #endregion Method : Publish
+
+        #endregion ViewModel : Command Method
 
         #region Drag & Drop
-        //private DropAcceptDescription _description;
-        //public DropAcceptDescription Description
-        //{
-        //    get { return this._description; }
-        //    set
-        //    {
-        //        if (this._description == value)
-        //        {
-        //            return;
-        //        }
-        //        this._description = value;
-        //        //this.RaisePropertyChanged(() => this.Description);
-        //    }
-        //}
+        /// <summary>
+        /// Drag & Drop DropAcceptプロパティ
+        /// </summary>
         public DropAcceptDescription Description { get; set; } = new DropAcceptDescription();
+        /// <summary>
+        /// Drag & Drop DropAcceptプロパティ
+        /// </summary>
+        public ThemeModel DropTarget { get; set; }
+        /// <summary>
+        /// Dropイベント
+        /// </summary>
+        /// <param name="args"></param>
         private void Description_DragDrop(System.Windows.DragEventArgs args)
         {
-            if (!args.Data.GetDataPresent(typeof(MainViewModel))) return;
-            var data = args.Data.GetData(typeof(MainViewModel)) as MainViewModel;
-            if (data == null) return;
-            var fe = args.OriginalSource as FrameworkElement;
-            if (fe == null) return;
-            var target = fe.DataContext as MainViewModel;
-            if (target == null) return;
+            if (args.Data.GetDataPresent(typeof(ContentModel)))
+            {
+                // Drop item
+                var data = args.Data.GetData(typeof(ContentModel)) as ContentModel;
+
+                // EventArgsからDrop先のFrameworkElementを取得
+                var feDest = args.Source as System.Windows.Controls.ListBox;
+                // EventArgsからDrop先のバインドオブジェクトを取得
+                var bindDest = BindingOperations.GetBinding(
+                       (args.Source as System.Windows.Controls.ListBox), System.Windows.Controls.ListBox.ItemsSourceProperty).Path.Path;
+
+                // Drop元のバインドオブジェクトを取得
+                var dragFromTheme = ThemeList.Any(item => item.ContentList.Contains(data));
+                var dragFromFree = ContentFreeList.Contains(data);
+
+                // Drop元とDrop先のチェック
+                if (bindDest == nameof(ThemeList))
+                {
+                    if (dragFromFree)
+                    {
+                        Point position = args.GetPosition(args.OriginalSource as IInputElement);
+                        //System.Windows.Media.VisualTreeHelper.HitTest(
+                        //    this
+                        //                         , null
+                        //                         , new System.Windows.Media.HitTestResultCallback(OnHitTestResultCallback)
+                        //                         , new System.Windows.Media.PointHitTestParameters(position));
+                        // Drop Index
+                        //var targetContainer = GuiUtils.GetTemplatedRootElement(args.OriginalSource as FrameworkElement);
+                        //var targetContainer2 = GuiUtils.FindAncestor<System.Windows.Controls.ListBox>(args.OriginalSource as FrameworkElement);
+                        var index = ThemeList.IndexOf(DropTarget);
+                        index = index < 0 ? feDest.Items.Count - 1 : index;
+
+                        ThemeList[index].ContentList.Add(data);
+                        ContentFreeList.Remove(data);
+                    }
+                    else if (dragFromTheme) return;
+                }
+                else if (bindDest == nameof(ContentFreeList))
+                {
+                    if (dragFromFree)
+                    {
+                        // Drop Index
+                        var targetContainer = GuiUtils.GetTemplatedRootElement(args.OriginalSource as FrameworkElement);
+                        var index = feDest.ItemContainerGenerator.IndexFromContainer(targetContainer);
+                        index = index < 0 ? feDest.Items.Count - 1 : index;
+                        // Collectionに反映
+                        var ocDest = this[bindDest] as ObservableCollection<ContentModel>;
+                        ocDest.Move(feDest.SelectedIndex, index);
+                    }
+                    else if (dragFromTheme)
+                    {
+                        // Drop Index
+                        var index = ThemeList
+                            .Select((thm, i) => new { Theme = thm, Index = i })
+                            .Where(item => item.Theme.ContentList.Contains(data))
+                            .Select(item => item.Index).FirstOrDefault();
+
+                        // Collectionに反映
+                        ContentFreeList.Add(data);
+                        ThemeList[index].ContentList.Remove(data);
+                    }
+                }
+                return;
+            }
+            if (args.Data.GetDataPresent(typeof(ThemeModel)))
+            {
+                return;
+            }
         }
+        private void UpdateDrop(object obj)
+        {
+            DropTarget = obj as ThemeModel;
+        }
+        /// <summary>
+        /// Dragイベント
+        /// </summary>
+        /// <param name="args"></param>
         private void Description_DragOver(System.Windows.DragEventArgs args)
         {
             if (args.AllowedEffects.HasFlag(DragDropEffects.Copy))
             {
-                if (args.Data.GetDataPresent(typeof(MainViewModel)))
+                if (args.Data.GetDataPresent(typeof(ContentModel)))
+                {
+                    return;
+                }
+                if (args.Data.GetDataPresent(typeof(ThemeModel)))
                 {
                     return;
                 }
             }
             args.Effects = DragDropEffects.None;
         }
-        #endregion
+        private readonly List<DependencyObject> _hitResults = new List<DependencyObject>();
+        private System.Windows.Media.HitTestResultBehavior OnHitTestResultCallback(System.Windows.Media.HitTestResult result)
+        {
+            _hitResults.Add(result.VisualHit);
+            return System.Windows.Media.HitTestResultBehavior.Continue;
+        }
+        #endregion Drag & Drop
     }
-
-    #region Converter
-
-    public class MultiParamConverter : IMultiValueConverter
-    {
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-        {
-            //string cmd = values[0].ToString();
-            //Window wnd = (Window)values[1];
-            return values.Clone();
-        }
-
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            return new object[] { };
-        }
-    }
-    // MultiParamConv
-    public class BoolVisibilityConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            return ((bool?)value == true) ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static BoolVisibilityConverter Converter = new BoolVisibilityConverter(); // 値コンバーターの実体
-    }
-    #endregion
 }

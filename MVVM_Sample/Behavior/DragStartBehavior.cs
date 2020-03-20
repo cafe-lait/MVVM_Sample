@@ -212,26 +212,33 @@ namespace MVVM_Sample.Behavior
 
             if (CheckDistance(point, this.origin))
             {
-                // アクティブWindowの直下のContentに対して、Adornerを付加する
-                var window = Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive);
+                try
+                {
+                    // アクティブWindowの直下のContentに対して、Adornerを付加する
+                    var window = Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive);
 
-                if(window != null)
-                {
-                    var root = window.Content as UIElement;
-                    var layer = AdornerLayer.GetAdornerLayer(root);
-                    this.dragGhost = new DragAdorner(root, (UIElement)sender, 0.5, this.dragStartPos);
-                    layer.Add(this.dragGhost);
-                    DragDrop.DoDragDrop(this.AssociatedObject, this.DragDropData, this.AllowedEffects);
-                    layer.Remove(this.dragGhost);
+                    if (window != null)
+                    {
+                        var root = window.Content as UIElement;
+                        var layer = AdornerLayer.GetAdornerLayer(root);
+                        this.dragGhost = new DragAdorner(root, (UIElement)sender, 0.5, this.dragStartPos);
+                        layer.Add(this.dragGhost);
+                        DragDrop.DoDragDrop(this.AssociatedObject, this.DragDropData, this.AllowedEffects);
+                        layer.Remove(this.dragGhost);
+                    }
+                    else
+                    {
+                        DragDrop.DoDragDrop(this.AssociatedObject, this.DragDropData, this.AllowedEffects);
+                    }
+                    this.isButtonDown = false;
+                    e.Handled = true;
+                    this.dragGhost = null;
+                    this.dragItem = null;
                 }
-                else
+                catch(Exception ex)
                 {
-                    DragDrop.DoDragDrop(this.AssociatedObject, this.DragDropData, this.AllowedEffects);
+                    MessageBox.Show(ex.Message);
                 }
-                this.isButtonDown = false;
-                e.Handled = true;
-                this.dragGhost = null;
-                this.dragItem = null;
             }
         }
 
