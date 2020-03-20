@@ -94,6 +94,7 @@
     <Compile Include="Common\Converter.cs" />
     <Compile Include="Common\GuiUtils.cs" />
     <Compile Include="Common\InvokeCommandExtension.cs" />
+    <Compile Include="Common\ListBoxEx.cs" />
     <Compile Include="Model\SelectedInfoModel.cs" />
     <Compile Include="Model\StatusModel.cs" />
     <Compile Include="Model\ContentModel.cs" />

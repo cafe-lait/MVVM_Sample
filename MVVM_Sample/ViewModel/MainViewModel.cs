@@ -393,7 +393,7 @@ namespace MVVM_Sample.ViewModel
                         //var targetContainer2 = GuiUtils.FindAncestor<System.Windows.Controls.ListBox>(args.OriginalSource as FrameworkElement);
                         var index = ThemeList.IndexOf(DropTarget);
                         index = index < 0 ? feDest.Items.Count - 1 : index;
-
+                        //var datas = 
                         ThemeList[index].ContentList.Add(data);
                         ContentFreeList.Remove(data);
                     }

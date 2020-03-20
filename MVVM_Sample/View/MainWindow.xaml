@@ -71,6 +71,16 @@
                                         Value="{DynamicResource UnselectBrush}"/>
                                 <Setter TargetName="Border" Property="BorderThickness" Value="1"/>
                             </Trigger>
+                            <Trigger Property="IsSelected" Value="true">
+                                <Setter TargetName="Border" Property="Background" 
+                                        Value="{StaticResource BackBrush_Light}"/>
+                                <Setter TargetName="Border" Property="BorderThickness" Value="1"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="false">
+                                <Setter TargetName="Border" Property="Background" 
+                                        Value="{DynamicResource UnselectBrush}"/>
+                                <Setter TargetName="Border" Property="BorderThickness" Value="1"/>
+                            </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -315,17 +325,17 @@
             </Border>
 
             <Border Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="1" Margin="5" BorderThickness="0" BorderBrush="LightPink" >
-                <ListBox Grid.Row="1" Grid.ColumnSpan="5" IsSynchronizedWithCurrentItem="True" 
+                <common:ListBoxEx Grid.Row="1" Grid.ColumnSpan="5" IsSynchronizedWithCurrentItem="True" 
                          VirtualizingPanel.ScrollUnit="Pixel" VirtualizingPanel.IsVirtualizing="True"
                          VirtualizingPanel.IsContainerVirtualizable="True" VirtualizingPanel.VirtualizationMode="Recycling"
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="True" ScrollViewer.PanningMode="Both" 
-                         ScrollViewer.IsDeferredScrollingEnabled="False"
+                         ScrollViewer.IsDeferredScrollingEnabled="False" SelectionMode="Extended"
                          ItemsSource="{Binding ContentFreeList, Mode=Default, UpdateSourceTrigger=PropertyChanged}" 
                          Style="{StaticResource ContentFreeListStyle}" ItemContainerStyle="{DynamicResource ContentItemStyle}" AllowDrop="True">
                     <i:Interaction.Behaviors>
                         <behaviors:DragAcceptBehavior Description="{Binding Description}" />
                     </i:Interaction.Behaviors>
-                </ListBox>
+                </common:ListBoxEx>
             </Border>
 
             <StatusBar Grid.Row="3" Grid.ColumnSpan="2" Background="{StaticResource BackBrush_Light}" Margin="2" >
