@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:behaviors="clr-namespace:MVVM_Sample.Behavior"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:dd="urn:gong-wpf-dragdrop"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MVVM_Sample.ViewModel"
@@ -52,9 +53,6 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBoxItem">
                         <Grid x:Name="itemContentGrid">
-                            <i:Interaction.Behaviors>
-                                <behaviors:DragStartBehavior AllowedEffects="Copy" DragDropData="{Binding}" />
-                            </i:Interaction.Behaviors>
                             <Border Name="Border" Padding="1" SnapsToDevicePixels="true" Background="Transparent">
                                 <ContentPresenter />
                             </Border>
@@ -189,7 +187,7 @@
                             </i:Interaction.Triggers>
                             <Border BorderThickness="0" BorderBrush="{StaticResource SelectBrush_Light}" Name="MovieBorder" Margin="0,4" 
                                     Padding="0,2,0,0" Background="{StaticResource BackBrush_Light}"
-                                    Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=ActualWidth}">
+                                    Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=ActualWidth}" >
                                 <Grid >
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="25"/>
@@ -203,18 +201,25 @@
                                         <ColumnDefinition Width="100"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBox Grid.Column="1" Margin="1" Text="{Binding ThemeName}" TextAlignment="Left" Foreground="{StaticResource SelectBrush_Light}" 
-                                             Style="{StaticResource TextBlockBox}" Background="Transparent" IsReadOnly="False"/>
+                                             Style="{StaticResource TextBlockBox}" Background="Transparent" IsReadOnly="False" MinWidth="50" HorizontalAlignment="Left" />
                                     <TextBox Grid.Column="2" Margin="1"  Text="{Binding ThemeKind}" TextAlignment="Left" Foreground="{StaticResource SelectBrush_Light}" 
-                                             Style="{StaticResource TextBlockBox}" Background="Transparent"/>
+                                             Style="{StaticResource TextBlockBox}" Background="Transparent" IsReadOnly="False" MinWidth="30" HorizontalAlignment="Left" />
                                     <TextBlock Grid.Column="3" Margin="1" Text="{Binding ArticleCount}"  TextAlignment="Left" Foreground="{StaticResource SelectBrush_Light}" />
                                     <TextBlock Grid.Column="4" Margin="1" Text="{Binding ImageCount}"  TextAlignment="Left" Foreground="{StaticResource SelectBrush_Light}" />
-                                    <ListBox Grid.Row="1" Grid.ColumnSpan="5"  IsSynchronizedWithCurrentItem="True" 
+                                    <ListBox Grid.Row="1" Grid.ColumnSpan="5"  IsSynchronizedWithCurrentItem="True" MinHeight="20"
                                              VirtualizingPanel.ScrollUnit="Pixel" VirtualizingPanel.IsVirtualizing="True"
                                              VirtualizingPanel.IsContainerVirtualizable="True" VirtualizingPanel.VirtualizationMode="Recycling"
-                                             ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                              ScrollViewer.CanContentScroll="True" ScrollViewer.PanningMode="Both" ScrollViewer.IsDeferredScrollingEnabled="False"
                                              ItemsSource="{Binding ContentList, Mode=Default, UpdateSourceTrigger=PropertyChanged}" 
-                                             Style="{StaticResource ContentListStyle}" ItemContainerStyle="{DynamicResource ContentItemStyle}">
+                                             Style="{StaticResource ContentListStyle}" ItemContainerStyle="{DynamicResource ContentItemStyle}" AllowDrop="True" 
+                                             dd:DragDrop.DragDirectlySelectedOnly="True"
+                                             dd:DragDrop.CanDragWithMouseRightButton="True"
+                                             dd:DragDrop.DropTargetAdornerBrush="Coral"
+                                             dd:DragDrop.IsDragSource="True"
+                                             dd:DragDrop.IsDropTarget="True"
+                                             dd:DragDrop.UseDefaultDragAdorner="True"
+                                             dd:DragDrop.UseDefaultEffectDataTemplate="False">
                                     </ListBox>
                                 </Grid>
                             </Border>
@@ -315,10 +320,17 @@
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="True" ScrollViewer.PanningMode="Both" 
                                  ScrollViewer.IsDeferredScrollingEnabled="False"
                                  ItemsSource="{Binding ThemeList, Mode=Default, UpdateSourceTrigger=PropertyChanged}" 
-                                 Style="{StaticResource ThemeListStyle}" ItemContainerStyle="{DynamicResource ThemeItemStyle}" AllowDrop="True">
-                            <i:Interaction.Behaviors>
+                                 Style="{StaticResource ThemeListStyle}" ItemContainerStyle="{DynamicResource ThemeItemStyle}" AllowDrop="True"
+                                 dd:DragDrop.DragDirectlySelectedOnly="True"
+                                 dd:DragDrop.CanDragWithMouseRightButton="True"
+                                 dd:DragDrop.DropTargetAdornerBrush="Red"
+                                 dd:DragDrop.IsDragSource="True"
+                                 dd:DragDrop.IsDropTarget="True"
+                                 dd:DragDrop.UseDefaultDragAdorner="True"
+                                 dd:DragDrop.UseDefaultEffectDataTemplate="False">
+                            <!--<i:Interaction.Behaviors>
                                 <behaviors:DragAcceptBehavior Description="{Binding Description}" />
-                            </i:Interaction.Behaviors>
+                            </i:Interaction.Behaviors>-->
                         </ListBox>
                     </Border>
                 </Grid>
@@ -331,10 +343,14 @@
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="True" ScrollViewer.PanningMode="Both" 
                          ScrollViewer.IsDeferredScrollingEnabled="False" SelectionMode="Extended"
                          ItemsSource="{Binding ContentFreeList, Mode=Default, UpdateSourceTrigger=PropertyChanged}" 
-                         Style="{StaticResource ContentFreeListStyle}" ItemContainerStyle="{DynamicResource ContentItemStyle}" AllowDrop="True">
-                    <i:Interaction.Behaviors>
-                        <behaviors:DragAcceptBehavior Description="{Binding Description}" />
-                    </i:Interaction.Behaviors>
+                         Style="{StaticResource ContentFreeListStyle}" ItemContainerStyle="{DynamicResource ContentItemStyle}" AllowDrop="True"
+                         dd:DragDrop.DragDirectlySelectedOnly="True"
+                         dd:DragDrop.CanDragWithMouseRightButton="True"
+                         dd:DragDrop.DropTargetAdornerBrush="Coral"
+                         dd:DragDrop.IsDragSource="True"
+                         dd:DragDrop.IsDropTarget="True"
+                         dd:DragDrop.UseDefaultDragAdorner="True"
+                         dd:DragDrop.UseDefaultEffectDataTemplate="False">
                 </common:ListBoxEx>
             </Border>
 
